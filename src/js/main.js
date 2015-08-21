@@ -12,19 +12,19 @@ function initialSetUp(){
 
   var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
-  var marker = new google.maps.Marker({
-    position: myLatlng,
-    title: 'Montréal, QC',
-    map: map
-  });
-
-  var infowindow = new google.maps.InfoWindow({
-    content: 'Montréal, QC'
-  });
-
-  google.maps.event.addListener(marker, 'click', function() {
-    infowindow.open(map,marker);
-  });
+  // var marker = new google.maps.Marker({
+  //   position: myLatlng,
+  //   title: 'Montréal, QC',
+  //   map: map
+  // });
+  //
+  // var infowindow = new google.maps.InfoWindow({
+  //   content: 'Montréal, QC'
+  // });
+  //
+  // google.maps.event.addListener(marker, 'click', function() {
+  //   infowindow.open(map,marker);
+  // });
 }
 
 
@@ -67,12 +67,12 @@ function initialize() {
 
     var url = 'https://api.instagram.com/v1/media/search?lat='+latInsta+'&lng='+lngInsta+'&access_token=322608956.c39a870.654d8fb14b8d48838cc430bebcb0dede';
 
-    // Fetch events via AJAX
-    function fetchEvents(url) {
+    // Fetch Instagram Photos via AJAX
+    function fetchPhotos(url) {
       $.ajax({
         type: "GET",
         url: url,
-        success: renderEvents,
+        success: renderPhotos,
         dataType: "jsonp"
       });
     }
@@ -90,23 +90,25 @@ function initialize() {
     }
 
     // Render Weather Info
-    var weather = {};
+    var weatherObj = {};
     function renderWeather(res) {
-      weather.humidity = res.main.humidity + '%';
-      weather.temp = res.main.temp + "&#8451;";
-      weather.summary = res.weather[0].description;
-      // console.log(weather);
+      weatherObj.humidity = res.main.humidity + '%';
+      weatherObj.temp = res.main.temp + "&#8451;";
+      weatherObj.summary = res.weather[0].description;
+      weatherObj.iconURL = 'http://openweathermap.org/img/w/'+res.weather[0].icon+'.png';
+
       // TODO: render them in DOM
+      console.log(weatherObj);
     }
 
-    // Render Instagram
-    function renderEvents(res) {
+    // Render Instagram Photos
+    function renderPhotos(res) {
       // console.log('=====RES=====: ', res);
       // Insert each photo to the unordered list inside Instagram div
       var photoParent = document.createElement('ul');
       var listEl;
       var imageEl;
-      for(var i = 0; i < res.data.length; i++){
+      for(var i = 0, len = res.data.length; i < len; i++){
         // Create Photo List and append to ul
         listEl = document.createElement('li');
         imageEl = document.createElement('img');
@@ -148,7 +150,7 @@ function initialize() {
       instagramNode.insertBefore(photoParent, instagramNode.firstChild);
     }
 
-    fetchEvents(url);
+    fetchPhotos(url);
     fetchWeatherInfo(latInsta, lngInsta);
   });
 

@@ -25,6 +25,7 @@ npm install --save-dev gulp gulp-minify-css gulp-uglify gulp-minify-html
 #### 3rd Party APIs (Considering to use)
 - [Instagarm](https://instagram.com/developer/?hl=en)
 - [Open Weather Map](http://openweathermap.org/api)
+- [Open Weather Map - API/Weather Condition Codes](http://openweathermap.org/wiki/API/Weather_Condition_Codes)
 - [Meetup](http://www.meetup.com/meetup_api/)
 - [Foursquare](https://developer.foursquare.com/start)
 - [Flickr](https://www.flickr.com/services/api/)
