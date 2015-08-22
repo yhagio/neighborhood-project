@@ -1,159 +1,152 @@
 'use strict';
 
-function initialSetUp(){
-  // Default Location "Montreal, Canada"
-  var myLatlng = new google.maps.LatLng(45.5015217,-73.5732091);
+var myLatlng;
+var mapOptions;
+var map;
+var infowindow;
+var marker;
+var mapCanvas = document.getElementById('map-canvas');
 
-  var mapOptions = {
+var places;
+var latInsta;
+var lngInsta;
+var instagramURL;
+var instagramNode = document.getElementById('instagram');
+
+// Model - Photo
+var Photo = function(photoId, imgURL, caption, lat, lon) {
+  this.photoId = ko.observable(photoId);
+  this.imgURL = ko.observable(imgURL);
+  this.caption = ko.observable(caption);
+  this.lat = ko.observable(lat);
+  this.lon = ko.observable(lon);
+};
+
+// ViewModel - photo
+var photoVM = {
+  // Array of instagram data
+  photos: ko.observableArray([]),
+
+  fetchPhotos: function(latInsta, lngInsta) {
+    instagramURL = 'https://api.instagram.com/v1/media/search?lat='+latInsta+'&lng='+lngInsta+'&access_token=322608956.c39a870.654d8fb14b8d48838cc430bebcb0dede';
+
+    $.ajax({
+      type: "GET",
+      url: instagramURL,
+      success: this.renderPhotos,
+      dataType: "jsonp"
+    });
+  },
+  renderPhotos: function(res) {
+    photoVM.photos.removeAll();
+    var newPhoto;
+    var captionText;
+    var photoId;
+    for(var i = 0, len = res.data.length; i < len; i++){
+      console.log(res.data[i]);
+      // Set photoId
+      photoId = 'photo-' + i;
+
+      // Check if the photo has title
+      captionText = photoVM.hasTitle(res.data[i]);
+
+      // Add new photo to observable array
+      newPhoto = new Photo(photoId, res.data[i].images.thumbnail.url, captionText, res.data[i].location.latitude, res.data[i].location.longitude);
+      photoVM.photos.push(newPhoto);
+
+      // Add marker
+      marker = new google.maps.Marker({
+        position: new google.maps.LatLng(res.data[i].location.latitude, res.data[i].location.longitude),
+        map: map
+      });
+
+      // Add event lsitener to open info window on clicking marker
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        var infowindowContent = '<div class="infoWindow">' +
+                              '<img src="'+res.data[i].images.thumbnail.url+'">' +
+                              '<p>'+photoVM.hasTitle(res.data[i]) +'</p>' +
+                              '<b>@'+res.data[i].user.username+'</p>'
+                            '</div>';
+        return function() {
+          infowindow.setContent(infowindowContent);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+
+      // Add event lsitener to open info window on clicking a photo from list
+      document.getElementById(photoId).addEventListener('click', (function(marker) {
+        return function(){
+          google.maps.event.trigger(marker, 'click');
+        }
+      })(marker));
+    }
+  },
+
+  hasTitle: function(data) {
+    if((data.caption)&&(data.caption.text)){
+      return data.caption.text;
+    } else {
+      return 'No Title';
+    }
+  }
+
+};
+
+var searchBox = new google.maps.places.SearchBox(document.getElementById('location-input'));
+
+google.maps.event.addListener(searchBox, 'places_changed', function() {
+
+  places = searchBox.getPlaces();
+  latInsta = places[0].geometry.location.G;
+  lngInsta = places[0].geometry.location.K;
+
+  // Set marker of the city
+  map = new google.maps.Map(mapCanvas, {
+    zoom: 15,
+    center: new google.maps.LatLng(latInsta, lngInsta),
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  });
+  infowindow = new google.maps.InfoWindow();
+
+  // Get and display data
+  photoVM.fetchPhotos(latInsta, lngInsta);
+  // fetchWeatherInfo(latInsta, lngInsta);
+});
+
+
+
+function initialSetUp() {
+  // Default Location of "Montreal, Canada"
+  myLatlng = new google.maps.LatLng(45.5015217,-73.5732091);
+
+  mapOptions = {
     zoom: 11,
     center: myLatlng,
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
 
-  var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+  map = new google.maps.Map(mapCanvas, mapOptions);
 
-  // var marker = new google.maps.Marker({
-  //   position: myLatlng,
-  //   title: 'Montréal, QC',
-  //   map: map
-  // });
-  //
-  // var infowindow = new google.maps.InfoWindow({
-  //   content: 'Montréal, QC'
-  // });
-  //
-  // google.maps.event.addListener(marker, 'click', function() {
-  //   infowindow.open(map,marker);
-  // });
+  marker = new google.maps.Marker({
+    position: myLatlng,
+    title: 'Montréal, QC',
+    map: map
+  });
+
+  infowindow = new google.maps.InfoWindow({
+    content: 'Montréal, QC'
+  });
+
+  google.maps.event.addListener(marker, 'click', function() {
+    infowindow.open(map,marker);
+  });
 }
-
 
 function initialize() {
   // Call initial set up function above
   initialSetUp();
-
-  var searchBox = new google.maps.places.SearchBox(document.getElementById('location-input'));
-
-
-  google.maps.event.addListener(searchBox, 'places_changed', function() {
-
-    var places = searchBox.getPlaces();
-
-    // var city = "Montreal";
-    // var country = "ca";
-    // var topic = "Javascript";
-    // var url = "https://api.meetup.com/2/open_events?&sign=true&photo-host=public&country="+country+"&topic="+topic+"&city="+city+"&page=20";
-
-    // var cityName = places[0].name;
-    // var countryName = places[0].address_components[2].;
-    var latInsta = places[0].geometry.location.G;
-    var lngInsta = places[0].geometry.location.K;
-
-    // Set marker of the city
-    var map = new google.maps.Map(document.getElementById('map-canvas'), {
-      zoom: 15,
-      center: new google.maps.LatLng(latInsta, lngInsta),
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-    });
-    var infowindow = new google.maps.InfoWindow();
-    var marker;
-
-    // Instagram Div
-    var instagramNode = document.getElementById('instagram');
-
-    while (instagramNode.firstChild) {
-      instagramNode.removeChild(instagramNode.firstChild);
-    }
-
-    var url = 'https://api.instagram.com/v1/media/search?lat='+latInsta+'&lng='+lngInsta+'&access_token=322608956.c39a870.654d8fb14b8d48838cc430bebcb0dede';
-
-    // Fetch Instagram Photos via AJAX
-    function fetchPhotos(url) {
-      $.ajax({
-        type: "GET",
-        url: url,
-        success: renderPhotos,
-        dataType: "jsonp"
-      });
-    }
-
-    // Fetch Weather Information of the city
-    function fetchWeatherInfo(latInsta, lngInsta) {
-      var wURL = "http://api.openweathermap.org/data/2.5/weather?lat="+latInsta+"&lon="+lngInsta+"&units=metric";
-
-      $.ajax({
-        type: "GET",
-        url: wURL,
-        success: renderWeather,
-        dataType: "jsonp"
-      });
-    }
-
-    // Render Weather Info
-    var weatherObj = {};
-    function renderWeather(res) {
-      weatherObj.humidity = res.main.humidity + '%';
-      weatherObj.temp = res.main.temp + "&#8451;";
-      weatherObj.summary = res.weather[0].description;
-      weatherObj.iconURL = 'http://openweathermap.org/img/w/'+res.weather[0].icon+'.png';
-
-      // TODO: render them in DOM
-      console.log(weatherObj);
-    }
-
-    // Render Instagram Photos
-    function renderPhotos(res) {
-      // console.log('=====RES=====: ', res);
-      // Insert each photo to the unordered list inside Instagram div
-      var photoParent = document.createElement('ul');
-      var listEl;
-      var imageEl;
-      for(var i = 0, len = res.data.length; i < len; i++){
-        // Create Photo List and append to ul
-        listEl = document.createElement('li');
-        imageEl = document.createElement('img');
-        imageEl.src = res.data[i].images.thumbnail.url;
-        listEl.appendChild(imageEl);
-        photoParent.appendChild(listEl);
-
-        // Check if photo has title
-        function title(data){
-          if((data.caption)&&(data.caption.text)){
-            return data.caption.text;
-          } else {
-            return 'No Title';
-          }
-        }
-
-        marker = new google.maps.Marker({
-          position: new google.maps.LatLng(res.data[i].location.latitude, res.data[i].location.longitude),
-          map: map
-        });
-
-        // Add event lsitener to open info window on clicking marker
-        google.maps.event.addListener(marker, 'click', (function(marker, i) {
-          return function() {
-            infowindow.setContent('<div class="infoWindow"><img src="'+res.data[i].images.thumbnail.url+'"><p>'+title(res.data[i]) +'</p></div>');
-            infowindow.open(map, marker);
-          }
-        })(marker, i));
-
-        // Add event lsitener to open info window on clicking a photo from list
-        listEl.addEventListener('click', (function(marker) {
-          return function(){
-            google.maps.event.trigger(marker, 'click');
-          }
-        })(marker));
-      }
-
-      // Insert the photo lists to the Instagram div on the rigth side of screen
-      instagramNode.insertBefore(photoParent, instagramNode.firstChild);
-    }
-
-    fetchPhotos(url);
-    fetchWeatherInfo(latInsta, lngInsta);
-  });
-
 }
+
+ko.applyBindings(photoVM);
 
 google.maps.event.addDomListener(window, 'load', initialize);

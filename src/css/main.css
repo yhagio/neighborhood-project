@@ -8,19 +8,19 @@ li {
   list-style: none;
 }
 
-#main {
+.container {
   width: 100%;
   height: 100%;
   display: flex;
   flex-wrap: wrap;
 }
 
-#map-canvas {
+.map {
   z-index: 1;
   flex-grow: 5;
 }
 
-#location-input {
+.userInput {
   z-index: 2000;
   position: absolute;
   width: 300px;
@@ -41,9 +41,9 @@ li {
 
 
 /* Instagram Div */
-#instagram {
-  background: #ddd;
-  
+.instagramSideBar {
+  background: transparent;
+
   margin: 0;
   padding: 0;
   flex-grow: 1;
@@ -55,11 +55,11 @@ li {
   right: 0;
 }
 
-#instagram ul {
+.photoList {
   margin: 0;
   padding: 0;
 }
 
-#instagram ul li:hover {
+.photoItem:hover {
   cursor: pointer;
 }
