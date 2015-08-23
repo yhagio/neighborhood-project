@@ -1,18 +1,24 @@
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   margin: 0;
   font-family: sans-serif;
 }
 
-button, input {
+a {
+  text-decoration: none;
+}
+
+button,
+input {
   outline: 0;
 }
 
 button {
   border: none;
   position: fixed;
-  z-index: 2000;
+  z-index: 1000;
   width: 80px;
   height: 40px;
   border-radius: 30px;
@@ -21,7 +27,9 @@ button {
 }
 
 button:hover,
-.photoItem:hover {
+.photoItem:hover,
+.openViewList:hover,
+.closeViewList:hover {
   cursor: pointer;
 }
 
@@ -66,16 +74,18 @@ li {
 
 /* Instagram Photo Side Bar */
 .instagramSideBar {
-  background: transparent;
+  background: #fff;
   margin: 0;
   padding: 0;
   flex-grow: 1;
-  max-width: 150px;
+  /*max-width: 150px;*/
+  width: 0;
   height: 100%;
   overflow: scroll;
   position: absolute;
   z-index: 1000;
   right: 0;
+  transition: width 0.3s ease;
 }
 
 .photoList {
@@ -85,24 +95,26 @@ li {
 
 /* Weather Box */
 .weatherBox {
-  display: none;
-  width: 160px;
+  display: block;
+  margin: 0;
+  width: 100%;
   height: 220px;
-  position: fixed;
-  bottom: 10px;
-  left: 100px;
   z-index: 1000;
-  background-color: rgba(100, 100, 100, 0.7);
-  padding: 10px;
   text-align: center;
-  color: #fff;
+  color: #000;
 }
 
 /* Search Toggle Button */
+.search-box {
+  margin: 50px 0 0 0;
+  height: 45px;
+}
+
 .toggleSearch {
-  top: 10px;
-  left: 80px;
   background-color: #3498db;
+  width: 150px;
+  position: relative;
+  display: block;
 }
 
 /* Weather Toggle Button */
@@ -127,7 +139,7 @@ li {
   color: #000;
   opacity: 0;
   animation: fadeInOut 3s;
-  background-color: #ff0000;
+  background-color: #f00;
   border-radius: 30px;
   font-size: 1em;
 }
@@ -147,20 +159,74 @@ li {
     }
 }
 
+/* Off-Canvas Setting */
+
+.openViewList {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  z-index: 900;
+  font-size: 1.8em;
+  width: 40px;
+  height: 35px;
+  text-align: center;
+  padding: 0 0 5px 0;
+  border-radius: 10px 0 0 10px;
+  color: #fff;
+  /*border: 1px solid #000;*/
+  background-color: #3BF9F9;
+}
+
+.openViewListIcon {
+  width: 100%;
+}
+
+#instagram:target {
+  transition: width 0.3s ease;
+  width: 150px;
+}
+
+.closeViewList {
+  position: fixed;
+  background-color: #fff;
+  z-index: 1500;
+  font-size: 2em;
+  width: 150px;
+  height: 40px;
+  padding: 2px 10px 2px 2px;
+  color: #fff;
+  box-shadow: 0 0 10px #000;
+}
+
+.close-circle {
+  z-index: 1600;
+}
+
+.close-text {
+  vertical-align: top;
+  font-size: 1.15em;
+  color: #000;
+}
+
+
 /* For smaller screen */
 @media screen and (max-width: 540px) {
+
   .userInput {
     left: 35px;
     width: 200px;
   }
+
   .userInput:focus {
     width: 80%;
   }
-  .instagramSideBar {
+
+  /*.instagramSideBar {
     display: none;
-  }
+  }*/
 
   .errorBox {
     left: 50px;
   }
+
 }

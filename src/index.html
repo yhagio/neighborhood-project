@@ -12,29 +12,43 @@
     <div id="main" class="container">
       <div id="error" class="errorBox"></div>
 
-      <!-- Search toggle button and search input bar -->
-      <button type="button" class="toggleSearch" id="toggle-search">Search</button>
-      <input id="location-input" class="userInput" type="text" placeholder="Enter Location Name" />
+      <!-- Search input bar -->
+      <input id="location-input" class="userInput" type="text" placeholder="Enter Location Name"  autofocus="autofocus"/>
 
       <!-- Google Map -->
       <div id="map-canvas" class="map"></div>
 
       <!-- Instagram Photos -->
+      <a href="#instagram" for="open-menu" class="openViewList">
+        <img src="/images/resized/social-instagram-outline.png" alt="Instagram Icon" class="openViewListIcon"/>
+      </a>
+
+      <!-- Instagram Photo List Side Bar -->
       <div id="instagram" class="instagramSideBar">
+        <!-- Hide Instagarm photo list - Icon and Text -->
+        <a href="#" for="close-menu" class="closeViewList">
+          <img src="/images/resized/close-circled.png" alt="Close Icon" class="close-circled"/>
+          <span class="close-text">HIDE</span>
+        </a>
+        
+        <!-- Search Button -->
+        <div class="search-box">
+          <button type="button" class="toggleSearch" id="toggle-search">Search</button>
+        </div>
+
+        <!-- Weather -->
+        <div id="weather-box" class="weatherBox">
+          <p><span data-bind="text: city"></span></p>
+          <p><span data-bind="text: temp"></span></p>
+          <p>Humidity: <span data-bind="text: humidity"></span></p>
+          <p><span data-bind="text: summary"></span></p>
+          <img alt="Weather Image" data-bind="attr:{src: iconURL}" data-bind="attr:{alt: city}"/>
+        </div>
+
         <!-- Display each photo using the template "photo-item-tpl" -->
         <ul id="photo-list" class="photoList" data-bind="template:{ name:'photo-item-tpl', foreach: photos}">
         </ul>
       </div>
-    </div>
-
-    <!-- Weather toggle button and weather box -->
-    <button type="button" class="toggleWeather" id="toggle-weather">Weather</button>
-    <div id="weather-box" class="weatherBox">
-      <p><span data-bind="text: city"></span></p>
-      <p><span data-bind="text: temp"></span></p>
-      <p>Humidity: <span data-bind="text: humidity"></span></p>
-      <p><span data-bind="text: summary"></span></p>
-      <img alt="Weather Image" data-bind="attr:{src: iconURL}" data-bind="attr:{alt: city}"/>
     </div>
 
     <!-- Template for each photo item -->

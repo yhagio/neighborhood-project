@@ -117,7 +117,8 @@ var viewModel = {
         // Add marker for photo
         marker = new google.maps.Marker({
           position: new google.maps.LatLng(res.data[i].location.latitude, res.data[i].location.longitude),
-          map: map
+          map: map,
+          icon: '../images/resized/camera.png'
         });
 
         // Add event lsitener to open info window on clicking marker
@@ -141,6 +142,8 @@ var viewModel = {
           };
         })(marker));
       }
+      // Open Side Bar on rendering photos
+      window.location.href = window.location.pathname + '#instagram';
     }
   },
 
@@ -197,9 +200,9 @@ function initialize() {
   };
 
   map = new google.maps.Map(mapCanvas, mapOptions);
-
   infowindow = new google.maps.InfoWindow({});
 
+  // Fetch photos and weather information
   viewModel.fetchPhotos(45.5015217,-73.5732091);
   viewModel.fetchWeatherInfo(45.5015217,-73.5732091);
 }
@@ -210,14 +213,18 @@ ko.applyBindings(viewModel);
 // Start
 google.maps.event.addDomListener(window, "load", initialize);
 
-// Button toggle animation for search bar
+// Button show/hide animation for search bar
 $("#toggle-search").click(function(){
   $("#location-input").toggle(300);
-  ($("#toggle-search").text() === "Search") ? $("#toggle-search").text("Hide") : $("#toggle-search").text("Search");
+  ($("#toggle-search").text() === "Search") ? $("#toggle-search").text("Search Hide") : $("#toggle-search").text("Search");
 });
 
-// Button toggle animation for weather
-$("#toggle-weather").click(function(){
-  $("#weather-box").toggle(500);
-  ($("#toggle-weather").text() === "Weather") ? $("#toggle-weather").text("Hide") : $("#toggle-weather").text("Weather");
+// Close Sidebar and Search input on selecting a photo or closing side bar
+// If search bar is open, it closes at same time user selects a photo from sidebar
+$('#photo-list').click(function(){
+  window.location.href = window.location.pathname + '#';
+  $("#location-input").hide(300);
+  if($("#toggle-search").text() === "Search Hide") {
+    $("#toggle-search").text("Search");
+  }
 });

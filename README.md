@@ -28,5 +28,6 @@ npm install --save-dev gulp gulp-minify-css gulp-uglify gulp-minify-html
 - [Open Weather Map - API/Weather Condition Codes](http://openweathermap.org/wiki/API/Weather_Condition_Codes)
 
 #### Resources
+- [Icon - Ionicons](http://ionicons.com/)
 Need to handle error manually since the dataType is jsonp, jquery won't fire the error function automatically
 - [jQuery ajax request using jsonp error](http://stackoverflow.com/questions/5247295/jquery-ajax-request-using-jsonp-error)
