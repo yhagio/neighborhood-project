@@ -12,7 +12,7 @@ gulp.task('minicss', function() {
 
 // Minify JavaScript
 gulp.task('minijs', function() {
-  gulp.src('./src/js/main.js')
+  gulp.src('./src/js/*.js')
     .pipe(uglify())
     .pipe(gulp.dest('./dist/js'));
 });

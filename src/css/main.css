@@ -2,6 +2,27 @@ html, body {
   width: 100%;
   height: 100%;
   margin: 0;
+  font-family: sans-serif;
+}
+
+button, input {
+  outline: 0;
+}
+
+button {
+  border: none;
+  position: fixed;
+  z-index: 2000;
+  width: 80px;
+  height: 40px;
+  border-radius: 30px;
+  color: #fff;
+  font-size: 1em;
+}
+
+button:hover,
+.photoItem:hover {
+  cursor: pointer;
 }
 
 li {
@@ -21,29 +42,31 @@ li {
 }
 
 .userInput {
-  z-index: 2000;
+  display: none;
+  z-index: 3000;
   position: absolute;
-  width: 300px;
+  width: 200px;
   height: 30px;
   margin-top: 5px;
   font-size: 1em;
+  top: 50px;
   left: 80px;
+}
+
+.userInput:focus {
+  width: 300px;
+  transition: 0.5s;
 }
 
 .infoWindow {
   max-width: 250px;
   text-align: center;
-}
-
-.infoWindow {
   margin-left: 23px;
 }
 
-
-/* Instagram Div */
+/* Instagram Photo Side Bar */
 .instagramSideBar {
   background: transparent;
-
   margin: 0;
   padding: 0;
   flex-grow: 1;
@@ -60,6 +83,84 @@ li {
   padding: 0;
 }
 
-.photoItem:hover {
-  cursor: pointer;
+/* Weather Box */
+.weatherBox {
+  display: none;
+  width: 160px;
+  height: 220px;
+  position: fixed;
+  bottom: 10px;
+  left: 100px;
+  z-index: 1000;
+  background-color: rgba(100, 100, 100, 0.7);
+  padding: 10px;
+  text-align: center;
+  color: #fff;
+}
+
+/* Search Toggle Button */
+.toggleSearch {
+  top: 10px;
+  left: 80px;
+  background-color: #3498db;
+}
+
+/* Weather Toggle Button */
+.toggleWeather {
+  left: 50px;
+  bottom: 10px;
+  background-color: #1abc9c;
+}
+
+/* ERROR */
+.errorBox {
+  position: absolute;
+  top: 100px;
+  left: 80px;
+  z-index: 1000;
+  text-align: center;
+}
+
+.errorMessage {
+  margin: auto;
+  padding: 10px;
+  color: #000;
+  opacity: 0;
+  animation: fadeInOut 3s;
+  background-color: #ff0000;
+  border-radius: 30px;
+  font-size: 1em;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+    16% {
+       opacity: 1;
+    }
+    84% {
+       opacity: 1;
+    }
+    100% {
+       opacity: 0;
+    }
+}
+
+/* For smaller screen */
+@media screen and (max-width: 540px) {
+  .userInput {
+    left: 35px;
+    width: 200px;
+  }
+  .userInput:focus {
+    width: 80%;
+  }
+  .instagramSideBar {
+    display: none;
+  }
+
+  .errorBox {
+    left: 50px;
+  }
 }

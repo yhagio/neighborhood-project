@@ -5,32 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Neighborhood Project">
     <meta name="author" content="Yuichi Hagio">
-    <title></title>
+    <title>Hoodgram</title>
     <link rel="stylesheet" href="/css/main.css" media="screen">
   </head>
   <body>
     <div id="main" class="container">
+      <div id="error" class="errorBox"></div>
+
+      <!-- Search toggle button and search input bar -->
+      <button type="button" class="toggleSearch" id="toggle-search">Search</button>
       <input id="location-input" class="userInput" type="text" placeholder="Enter Location Name" />
+
+      <!-- Google Map -->
       <div id="map-canvas" class="map"></div>
+
+      <!-- Instagram Photos -->
       <div id="instagram" class="instagramSideBar">
+        <!-- Display each photo using the template "photo-item-tpl" -->
         <ul id="photo-list" class="photoList" data-bind="template:{ name:'photo-item-tpl', foreach: photos}">
         </ul>
       </div>
     </div>
 
-    <!-- <script type="text/template" id="info-window-box">
-      <div class="infoWindow">
-        <img src="'+res.data[i].images.thumbnail.url+'">
-        <p>'+title(res.data[i]) +'</p>
-      </div>
-    </script> -->
+    <!-- Weather toggle button and weather box -->
+    <button type="button" class="toggleWeather" id="toggle-weather">Weather</button>
+    <div id="weather-box" class="weatherBox">
+      <p><span data-bind="text: city"></span></p>
+      <p><span data-bind="text: temp"></span></p>
+      <p>Humidity: <span data-bind="text: humidity"></span></p>
+      <p><span data-bind="text: summary"></span></p>
+      <img alt="Weather Image" data-bind="attr:{src: iconURL}" data-bind="attr:{alt: city}"/>
+    </div>
 
+    <!-- Template for each photo item -->
     <script type="text/template" id="photo-item-tpl">
-      <li class="photoItem" id="" data-bind="attr:{id: photoId}">
-        <img src ="" data-bind="attr:{src: imgURL}" alt="Default" />
+      <li class="photoItem" data-bind="attr:{id: photoId}">
+        <img data-bind="attr:{src: imgURL}" data-bind="attr:{alt: photoId}" />
       </li>
     </script>
 
+    <!-- Javascript files -->
     <script src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
     <script src="/js/jquery-1.11.3.min.js"></script>
     <script src="/js/knockout-3.3.0.js"></script>
