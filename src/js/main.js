@@ -15,6 +15,7 @@ var instagramURL;
 var instagramNode = document.getElementById("instagram");
 
 var error = document.getElementById("error");
+var selectFilter = document.getElementById("select-filter-tag");
 
 // Remove children elements
 function clear(DOM){
@@ -48,7 +49,7 @@ google.maps.event.addListener(searchBox, "places_changed", function() {
 
     // Set marker of the city
     map = new google.maps.Map(mapCanvas, {
-      zoom: 14,
+      zoom: 15,
       center: new google.maps.LatLng(latInsta, lngInsta),
       mapTypeId: google.maps.MapTypeId.ROADMAP
     });
@@ -58,17 +59,18 @@ google.maps.event.addListener(searchBox, "places_changed", function() {
     viewModel.fetchPhotos(latInsta, lngInsta);
     viewModel.fetchWeatherInfo(latInsta, lngInsta);
   }
-
+  // Clear input value after submit
   $("#location-input").val("");
 });
 
 // Model
-var Model = function(photoId, imgURL, caption, lat, lon) {
+var Model = function(photoId, imgURL, caption, lat, lon, tags) {
   this.photoId = ko.observable(photoId);
   this.imgURL = ko.observable(imgURL);
   this.caption = ko.observable(caption);
   this.lat = ko.observable(lat);
   this.lon = ko.observable(lon);
+  this.tags = ko.observableArray(tags);
 };
 
 // ViewModel
@@ -81,8 +83,12 @@ var viewModel = {
   summary: ko.observable(""),
   iconURL: ko.observable(""),
 
+
   // Array of instagram data
   photos: ko.observableArray([]),
+
+  // Filtered
+  filter: ko.observable(""),
 
   fetchPhotos: function(latInsta, lngInsta) {
     instagramURL = "https://api.instagram.com/v1/media/search?lat="+latInsta+"&lng="+lngInsta+"&access_token=322608956.c39a870.654d8fb14b8d48838cc430bebcb0dede";
@@ -97,11 +103,17 @@ var viewModel = {
 
   // Display Instagram photos in the side bar and set the markers
   renderPhotos: function(res) {
+    // clear(selectFilter);
+    $('#select-filter-tag').slice(1).remove();
+
+    // Array for saving all tags in each photo
+    var allTags = [];
     // Error Handling
     if(!res.data){
       displayError("No photos found...");
     } else {
       viewModel.photos.removeAll();
+
       var newPhoto;
       var captionText;
       var photoId;
@@ -112,8 +124,15 @@ var viewModel = {
         // Check if the photo has title
         captionText = viewModel.hasTitle(res.data[i]);
 
+        // Save each tag in photo in array
+        if(res.data[i].tags.length > 0){
+          for (var j = 0, tagLen = res.data[i].tags.length; tagLen > j; j++){
+            allTags.push(res.data[i].tags[j]);
+          }
+        }
+
         // Add new photo to observable array
-        newPhoto = new Model(photoId, res.data[i].images.thumbnail.url, captionText, res.data[i].location.latitude, res.data[i].location.longitude);
+        newPhoto = new Model(photoId, res.data[i].images.thumbnail.url, captionText, res.data[i].location.latitude, res.data[i].location.longitude, res.data[i].tags);
         viewModel.photos.push(newPhoto);
 
         // Add marker for photo
@@ -144,6 +163,15 @@ var viewModel = {
           };
         })(marker));
       }
+
+      // Remove duplicated tags and save the uniq tags in array "uniqTags"
+      var uniqTags = [];
+      $.each(allTags, function(i, el){
+        if($.inArray(el, uniqTags) === -1) uniqTags.push(el);
+      });
+      // viewModel.uniqTags.push(uniqTags);
+      populateFilterOptions(uniqTags);
+
       // Open Side Bar on rendering photos
       window.location.href = window.location.pathname + "#instagram";
     }
@@ -190,13 +218,29 @@ var viewModel = {
   }
 };
 
+viewModel.filteredPhotos = ko.computed(function() {
+  if(!viewModel.filter()){
+    return viewModel.photos();
+  }
+  var filter = viewModel.filter();
+  if (!filter || filter == "None") {
+    return viewModel.photos();
+  } else {
+    return ko.utils.arrayFilter(viewModel.photos(), function(i) {
+        if(i.tags.indexOf(filter) > -1) {
+          return true;
+        }
+    });
+  }
+});
+
 // Initial Setting of Google Map
 function initialize() {
   // Default Location of "Montreal, Canada"
   myLatlng = new google.maps.LatLng(45.5015217,-73.5732091);
 
   mapOptions = {
-    zoom: 14,
+    zoom: 15,
     center: myLatlng,
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
@@ -218,7 +262,12 @@ google.maps.event.addDomListener(window, "load", initialize);
 // Button show/hide animation for search bar
 $("#toggle-search").click(function(){
   $(".inputBox").toggle(300);
-  ($("#toggle-search").text() === "Search") ? $("#toggle-search").text("Search Hide") : $("#toggle-search").text("Search");
+  if ($("#toggle-search").text() === "Search") {
+    $("#toggle-search").text("Search Hide");
+    $("#location-input").focus();
+  } else {
+    $("#toggle-search").text("Search");
+  }
 });
 
 // Close Sidebar and Search input on selecting a photo or closing side bar
@@ -229,4 +278,21 @@ $("#photo-list").click(function(){
   if($("#toggle-search").text() === "Search Hide") {
     $("#toggle-search").text("Search");
   }
+});
+
+
+// Create options in select
+var optionTag;
+function populateFilterOptions(arr) {
+  for(var i = 0, len = arr.length; len > i; i++){
+    optionTag = document.createElement("option");
+    optionTag.setAttribute("value", arr[i]);
+    optionTag.innerHTML = arr[i];
+    selectFilter.appendChild(optionTag)
+  }
+}
+
+$("#select-filter-tag").change(function(){
+  var keyTag = $(this).val();
+  viewModel.filter(keyTag);
 });

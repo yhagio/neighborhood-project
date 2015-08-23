@@ -14,7 +14,7 @@
 
       <!-- Search input bar -->
       <div class="inputBox">
-        <input id="location-input" class="userInput" type="text" placeholder="Enter Location Name"  autofocus="autofocus"/>
+        <input id="location-input" class="userInput" type="text" placeholder="Enter Location Name"  autofocus/>
       </div>
 
       <!-- Google Map -->
@@ -47,9 +47,15 @@
           <img alt="Weather Image" data-bind="attr:{src: iconURL}" data-bind="attr:{alt: city}"/>
         </div>
 
+        <!-- Select Filters -->
+        <select id="select-filter-tag" class="filterTags">
+          <option value="None">None</option>
+        </select>
+
         <!-- Display each photo using the template "photo-item-tpl" -->
-        <ul id="photo-list" class="photoList" data-bind="template:{ name:'photo-item-tpl', foreach: photos}">
+        <ul id="photo-list" class="photoList" data-bind="template: { name:'photo-item-tpl', foreach: filteredPhotos}">
         </ul>
+
       </div>
     </div>
 
