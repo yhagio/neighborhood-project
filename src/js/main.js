@@ -25,7 +25,7 @@ function clear(DOM){
 
 // Display error message
 function displayError(errorMsg){
-   var pTag = document.createElement('p');
+   var pTag = document.createElement("p");
    pTag.setAttribute("class", "errorMessage");
    pTag.innerHTML = errorMsg;
    error.appendChild(pTag);
@@ -41,7 +41,7 @@ google.maps.event.addListener(searchBox, "places_changed", function() {
 
   // Error handling on invalid location (Empty, Too long, etc)
   if(!places[0]){
-    displayError('No such place, try again.');
+    displayError("No such place, try again.");
   } else {
     latInsta = places[0].geometry.location.G;
     lngInsta = places[0].geometry.location.K;
@@ -58,6 +58,8 @@ google.maps.event.addListener(searchBox, "places_changed", function() {
     viewModel.fetchPhotos(latInsta, lngInsta);
     viewModel.fetchWeatherInfo(latInsta, lngInsta);
   }
+
+  $("#location-input").val("");
 });
 
 // Model
@@ -73,11 +75,11 @@ var Model = function(photoId, imgURL, caption, lat, lon) {
 var viewModel = {
 
   // Observables for weather
-  city: ko.observable(''),
-  humidity: ko.observable(''),
-  temp: ko.observable(''),
-  summary: ko.observable(''),
-  iconURL: ko.observable(''),
+  city: ko.observable(""),
+  humidity: ko.observable(""),
+  temp: ko.observable(""),
+  summary: ko.observable(""),
+  iconURL: ko.observable(""),
 
   // Array of instagram data
   photos: ko.observableArray([]),
@@ -97,7 +99,7 @@ var viewModel = {
   renderPhotos: function(res) {
     // Error Handling
     if(!res.data){
-      displayError('No photos found...');
+      displayError("No photos found...");
     } else {
       viewModel.photos.removeAll();
       var newPhoto;
@@ -118,7 +120,7 @@ var viewModel = {
         marker = new google.maps.Marker({
           position: new google.maps.LatLng(res.data[i].location.latitude, res.data[i].location.longitude),
           map: map,
-          icon: '../images/resized/camera.png'
+          icon: "../images/resized/camera.png"
         });
 
         // Add event lsitener to open info window on clicking marker
@@ -143,7 +145,7 @@ var viewModel = {
         })(marker));
       }
       // Open Side Bar on rendering photos
-      window.location.href = window.location.pathname + '#instagram';
+      window.location.href = window.location.pathname + "#instagram";
     }
   },
 
@@ -171,7 +173,7 @@ var viewModel = {
   // Display weather information
   renderWeather: function(res) {
     if(!res.main){
-      displayError('No weather found for this city...');
+      displayError("No weather found for this city...");
     } else {
       var cityName = res.name;
       var humidity = res.main.humidity + "%";
@@ -215,15 +217,15 @@ google.maps.event.addDomListener(window, "load", initialize);
 
 // Button show/hide animation for search bar
 $("#toggle-search").click(function(){
-  $("#location-input").toggle(300);
+  $(".inputBox").toggle(300);
   ($("#toggle-search").text() === "Search") ? $("#toggle-search").text("Search Hide") : $("#toggle-search").text("Search");
 });
 
 // Close Sidebar and Search input on selecting a photo or closing side bar
 // If search bar is open, it closes at same time user selects a photo from sidebar
-$('#photo-list').click(function(){
-  window.location.href = window.location.pathname + '#';
-  $("#location-input").hide(300);
+$("#photo-list").click(function(){
+  window.location.href = window.location.pathname + "#";
+  $(".inputBox").hide(300);
   if($("#toggle-search").text() === "Search Hide") {
     $("#toggle-search").text("Search");
   }

@@ -49,22 +49,25 @@ li {
   flex-grow: 5;
 }
 
-.userInput {
+.inputBox {
   display: none;
   z-index: 3000;
-  position: absolute;
-  width: 200px;
-  height: 30px;
-  margin-top: 5px;
-  font-size: 1em;
-  top: 50px;
-  left: 80px;
+  position: fixed;
+  width: 100%;
+  height: 50px;
 }
 
-.userInput:focus {
+.userInput {
+  width: 100%;
+  height: 40px;
+  font-size: 1.2em;
+  padding-left: 10px;
+}
+
+/*.userInput:focus {
   width: 300px;
   transition: 0.5s;
-}
+}*/
 
 .infoWindow {
   max-width: 250px;
@@ -212,14 +215,14 @@ li {
 /* For smaller screen */
 @media screen and (max-width: 540px) {
 
-  .userInput {
+  /*.userInput {
     left: 35px;
     width: 200px;
-  }
+  }*/
 
-  .userInput:focus {
+  /*.userInput:focus {
     width: 80%;
-  }
+  }*/
 
   /*.instagramSideBar {
     display: none;
