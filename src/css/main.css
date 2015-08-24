@@ -64,11 +64,6 @@ li {
   padding-left: 10px;
 }
 
-/*.userInput:focus {
-  width: 300px;
-  transition: 0.5s;
-}*/
-
 .infoWindow {
   max-width: 250px;
   text-align: center;
@@ -211,22 +206,13 @@ li {
   color: #000;
 }
 
+.filterTags {
+  width: 100%;
+}
+
 
 /* For smaller screen */
 @media screen and (max-width: 540px) {
-
-  /*.userInput {
-    left: 35px;
-    width: 200px;
-  }*/
-
-  /*.userInput:focus {
-    width: 80%;
-  }*/
-
-  /*.instagramSideBar {
-    display: none;
-  }*/
 
   .errorBox {
     left: 50px;

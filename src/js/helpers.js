@@ -1,12 +1,16 @@
 module.exports = {
+
   // Populate select option list for filtering photos
-  populateFilterOptions: function(arr, selectFilter) {
+  populateFilterOptions: function(arr, targetSelectDOM) {
+    // Default option
+    $("#select-filter-tag").append("<option value='None' selected='selected'>None</option>");
+
     var optionTag;
     for(var i = 0, len = arr.length; len > i; i++){
       optionTag = document.createElement("option");
       optionTag.setAttribute("value", arr[i]);
       optionTag.innerHTML = arr[i];
-      selectFilter.appendChild(optionTag)
+      targetSelectDOM.appendChild(optionTag)
     }
   },
 

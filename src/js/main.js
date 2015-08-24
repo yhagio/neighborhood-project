@@ -1,5 +1,6 @@
 "use strict";
 
+// Using Browserify to import helper functions
 var helpers = require('./helpers');
 
 // Declare resusable variables
@@ -10,9 +11,9 @@ var infowindow;
 var marker;
 var mapCanvas = document.getElementById("map-canvas");
 
-var places;
-var latInsta;
-var lngInsta;
+var searchLocation;
+var instagramLatitude;
+var instagramLongitude;
 var instagramURL;
 var instagramNode = document.getElementById("instagram");
 
@@ -20,44 +21,77 @@ var error = document.getElementById("error");
 var selectFilter = document.getElementById("select-filter-tag");
 
 // Google Map Setting
-var searchBox = new google.maps.places.SearchBox(document.getElementById("location-input"));
+var searchInput = new google.maps.places.SearchBox(document.getElementById("location-input"));
 
-google.maps.event.addListener(searchBox, "places_changed", function() {
+google.maps.event.addListener(searchInput, "places_changed", function() {
   helpers.clear(error);
   $("#toggle-search").trigger("click");
-  places = searchBox.getPlaces();
+  searchLocation = searchInput.getPlaces();
 
   // Error handling on invalid location (Empty, Too long, etc)
-  if(!places[0]){
+  if(!searchLocation[0]){
     helpers.displayError("No such place, try again.");
   } else {
-    latInsta = places[0].geometry.location.G;
-    lngInsta = places[0].geometry.location.K;
+    instagramLatitude = searchLocation[0].geometry.location.G;
+    instagramLongitude = searchLocation[0].geometry.location.K;
 
     // Set marker of the city
     map = new google.maps.Map(mapCanvas, {
       zoom: 15,
-      center: new google.maps.LatLng(latInsta, lngInsta),
+      center: new google.maps.LatLng(instagramLatitude, instagramLongitude),
       mapTypeId: google.maps.MapTypeId.ROADMAP
     });
     infowindow = new google.maps.InfoWindow();
 
     // Get and display data on Google Map
-    viewModel.fetchPhotos(latInsta, lngInsta);
-    viewModel.fetchWeatherInfo(latInsta, lngInsta);
+    viewModel.fetchPhotos(instagramLatitude, instagramLongitude);
+    viewModel.fetchWeatherInfo(instagramLatitude, instagramLongitude);
   }
   // Clear input value after submit
   $("#location-input").val("");
 });
 
 // Model
-var Model = function(photoId, imgURL, caption, lat, lon, tags) {
-  this.photoId = ko.observable(photoId);
-  this.imgURL = ko.observable(imgURL);
-  this.caption = ko.observable(caption);
-  this.lat = ko.observable(lat);
-  this.lon = ko.observable(lon);
-  this.tags = ko.observableArray(tags);
+var Model = function(photoId, captionText, data) {
+// var Model = function(photoId, imgURL, caption, lat, lon, tags) {
+
+  var self = this;
+
+  self.photoId = ko.observable(photoId);
+  self.imgURL = ko.observable(data.images.thumbnail.url);
+  self.caption = ko.observable(captionText);
+  self.lat = ko.observable(data.location.latitude);
+  self.lon = ko.observable(data.location.longitude);
+  self.tags = ko.observableArray(data.tags);
+  self.username = ko.observable(data.user.username);
+
+  // Create marker on google map
+  self.marker = ko.observable(new google.maps.Marker({
+    position: new google.maps.LatLng(self.lat(), self.lon()),
+    map: map,
+    icon: "../images/resized/camera.png"
+  }));
+
+  // Add event lsitener to open info window on clicking marker
+  google.maps.event.addListener(self.marker(), "click", (function(marker) {
+    var infowindowContent =
+      "<div class='infoWindow'>" +
+        "<img src='" + self.imgURL() + "'>" +
+        "<p>" + self.caption() + "</p>" +
+        "<b>@" + self.username() + "</p>" +
+      "</div>";
+    return function() {
+      infowindow.setContent(infowindowContent);
+      infowindow.open(map, marker);
+    };
+  })(self.marker()));
+
+  // TRY: Add event lsitener to open info window on clicking a photo from list
+  // document.getElementById(photoId).addEventListener("click", (function(marker) {
+  //   return function(){
+  //     google.maps.event.trigger(marker, "click");
+  //   };
+  // })(self.marker()));
 };
 
 // ViewModel
@@ -76,8 +110,8 @@ var viewModel = {
   // Filter keyword
   filter: ko.observable(""),
 
-  fetchPhotos: function(latInsta, lngInsta) {
-    instagramURL = "https://api.instagram.com/v1/media/search?lat="+latInsta+"&lng="+lngInsta+"&access_token=322608956.c39a870.654d8fb14b8d48838cc430bebcb0dede";
+  fetchPhotos: function(instagramLatitude, instagramLongitude) {
+    instagramURL = "https://api.instagram.com/v1/media/search?lat="+instagramLatitude+"&lng="+instagramLongitude+"&access_token=322608956.c39a870.654d8fb14b8d48838cc430bebcb0dede";
 
     $.ajax({
       type: "GET",
@@ -89,8 +123,11 @@ var viewModel = {
 
   // Display Instagram photos in the side bar and set the markers
   renderPhotos: function(res) {
-    // Clear select options except 1st default option
-    $('#select-filter-tag').slice(1).remove();
+    // Reset filter on rendering
+    viewModel.filter('');
+
+    // Clear options from filter selection
+    helpers.clear(selectFilter);
 
     // Array for saving all tags in each photo
     var allTags = [];
@@ -103,6 +140,7 @@ var viewModel = {
       var newPhoto;
       var captionText;
       var photoId;
+      var tagsLen;
       for(var i = 0, len = res.data.length; i < len; i++){
         // Set photoId
         photoId = "photo-" + i;
@@ -111,43 +149,46 @@ var viewModel = {
         captionText = viewModel.hasTitle(res.data[i]);
 
         // Save each tag in photo in array
-        if(res.data[i].tags.length > 0){
-          for (var j = 0, tagLen = res.data[i].tags.length; tagLen > j; j++){
+        tagsLen = res.data[i].tags.length;
+        if(tagsLen > 0){
+          for (var j = 0; tagsLen > j; j++){
             allTags.push(res.data[i].tags[j]);
           }
         }
 
         // Add new photo to observable array
-        newPhoto = new Model(photoId, res.data[i].images.thumbnail.url, captionText, res.data[i].location.latitude, res.data[i].location.longitude, res.data[i].tags);
+        newPhoto = new Model(photoId, captionText, res.data[i]);
+        // newPhoto = new Model(photoId, res.data[i].images.thumbnail.url, captionText, res.data[i].location.latitude, res.data[i].location.longitude, res.data[i].tags);
         viewModel.photos.push(newPhoto);
 
         // Add marker for photo
-        marker = new google.maps.Marker({
-          position: new google.maps.LatLng(res.data[i].location.latitude, res.data[i].location.longitude),
-          map: map,
-          icon: "../images/resized/camera.png"
-        });
+        // marker = new google.maps.Marker({
+        //   position: new google.maps.LatLng(res.data[i].location.latitude, res.data[i].location.longitude),
+        //   map: map,
+        //   icon: "../images/resized/camera.png"
+        // });
 
         // Add event lsitener to open info window on clicking marker
-        google.maps.event.addListener(marker, "click", (function(marker, i) {
-          var infowindowContent =
-            "<div class='infoWindow'>" +
-              "<img src='" + res.data[i].images.thumbnail.url + "'>" +
-              "<p>" + viewModel.hasTitle(res.data[i]) + "</p>" +
-              "<b>@" + res.data[i].user.username + "</p>" +
-            "</div>";
-          return function() {
-            infowindow.setContent(infowindowContent);
-            infowindow.open(map, marker);
-          };
-        })(marker, i));
+        // google.maps.event.addListener(marker, "click", (function(marker, i) {
+        //   var infowindowContent =
+        //     "<div class='infoWindow'>" +
+        //       "<img src='" + res.data[i].images.thumbnail.url + "'>" +
+        //       "<p>" + viewModel.hasTitle(res.data[i]) + "</p>" +
+        //       "<b>@" + res.data[i].user.username + "</p>" +
+        //     "</div>";
+        //   return function() {
+        //     infowindow.setContent(infowindowContent);
+        //     infowindow.open(map, marker);
+        //   };
+        // })(marker, i));
 
         // Add event lsitener to open info window on clicking a photo from list
-        document.getElementById(photoId).addEventListener("click", (function(marker) {
-          return function(){
-            google.maps.event.trigger(marker, "click");
-          };
-        })(marker));
+        // ISSUE: This eventLister is removed after filtered photo list :(
+        // document.getElementById(newPhoto.photoId()).addEventListener("click", (function(marker) {
+        //   return function(){
+        //     google.maps.event.trigger(marker, "click");
+        //   };
+        // })(newPhoto.marker()));
       }
 
       // Remove duplicated tags and save the uniq tags in array "uniqTags"
@@ -173,8 +214,8 @@ var viewModel = {
   },
 
   // Get weather data for the city entered
-  fetchWeatherInfo: function(latInsta, lngInsta) {
-    var wURL = "http://api.openweathermap.org/data/2.5/weather?lat="+latInsta+"&lon="+lngInsta+"&units=metric";
+  fetchWeatherInfo: function(instagramLatitude, instagramLongitude) {
+    var wURL = "http://api.openweathermap.org/data/2.5/weather?lat="+instagramLatitude+"&lon="+instagramLongitude+"&units=metric";
 
     $.ajax({
       type: "GET",
@@ -204,22 +245,42 @@ var viewModel = {
   }
 };
 
-// Filtering photos by selecting an option in the sidebar dropdown
+// Filtering photos and markers by selecting an option in the sidebar dropdown
 viewModel.filteredPhotos = ko.computed(function() {
   if(!viewModel.filter()){
     return viewModel.photos();
   }
   var filter = viewModel.filter();
   if (!filter || filter == "None") {
+    // When set filter "None" again display all markers on map
+    viewModel.photos().forEach(function(i) {
+      i.marker().setMap(map);
+    });
     return viewModel.photos();
   } else {
     return ko.utils.arrayFilter(viewModel.photos(), function(i) {
+        // If filter option applies to a photo, remove the photo's marker
+        // as well as from the view list.
         if(i.tags.indexOf(filter) > -1) {
+          i.marker().setMap(map);
+          // bindClickEventOnPhoto(i.photoId(), i.marker());
           return true;
+        } else {
+          i.marker().setMap(null);
         }
     });
   }
+
+  // function  bindClickEventOnPhoto(targetDOMId, targetMarker) {
+  //   console.log(targetDOMId);
+  //   document.getElementById(targetDOMId).addEventListener("click", (function(marker) {
+  //     return function(){
+  //       google.maps.event.trigger(marker, "click");
+  //     };
+  //   })(targetMarker));
+  // }
 });
+
 
 // Initial Setting of Google Map
 function initialize() {
@@ -245,6 +306,10 @@ ko.applyBindings(viewModel);
 
 // Start
 google.maps.event.addDomListener(window, "load", initialize);
+
+////////////////////////////////////////
+// Actions triggered by user's action //
+////////////////////////////////////////
 
 // Button show/hide animation for search bar
 $("#toggle-search").click(function(){
