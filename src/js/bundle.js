@@ -121,7 +121,7 @@ var Model = function(photoId, captionText, data) {
   self.tags = ko.observableArray(data.tags);
   self.username = ko.observable(data.user.username);
 
-  // TRY:
+  // Create marker on google map
   self.marker = ko.observable(new google.maps.Marker({
     position: new google.maps.LatLng(self.lat(), self.lon()),
     map: map,
@@ -142,7 +142,9 @@ var Model = function(photoId, captionText, data) {
     };
   })(self.marker()));
 
-  // TRY: Add event lsitener to open info window on clicking a photo from list
+  // Add event lsitener to open info window on clicking a photo from list
+  // ISSUE: This eventLister is removed after filtered photo list :(
+
   // document.getElementById(photoId).addEventListener("click", (function(marker) {
   //   return function(){
   //     google.maps.event.trigger(marker, "click");
@@ -181,7 +183,7 @@ var viewModel = {
   renderPhotos: function(res) {
     // Reset filter on rendering
     viewModel.filter('');
-    
+
     // Clear options from filter selection
     helpers.clear(selectFilter);
 
@@ -214,32 +216,11 @@ var viewModel = {
 
         // Add new photo to observable array
         newPhoto = new Model(photoId, captionText, res.data[i]);
-        // newPhoto = new Model(photoId, res.data[i].images.thumbnail.url, captionText, res.data[i].location.latitude, res.data[i].location.longitude, res.data[i].tags);
         viewModel.photos.push(newPhoto);
-
-        // Add marker for photo
-        // marker = new google.maps.Marker({
-        //   position: new google.maps.LatLng(res.data[i].location.latitude, res.data[i].location.longitude),
-        //   map: map,
-        //   icon: "../images/resized/camera.png"
-        // });
-
-        // Add event lsitener to open info window on clicking marker
-        // google.maps.event.addListener(marker, "click", (function(marker, i) {
-        //   var infowindowContent =
-        //     "<div class='infoWindow'>" +
-        //       "<img src='" + res.data[i].images.thumbnail.url + "'>" +
-        //       "<p>" + viewModel.hasTitle(res.data[i]) + "</p>" +
-        //       "<b>@" + res.data[i].user.username + "</p>" +
-        //     "</div>";
-        //   return function() {
-        //     infowindow.setContent(infowindowContent);
-        //     infowindow.open(map, marker);
-        //   };
-        // })(marker, i));
 
         // Add event lsitener to open info window on clicking a photo from list
         // ISSUE: This eventLister is removed after filtered photo list :(
+
         // document.getElementById(newPhoto.photoId()).addEventListener("click", (function(marker) {
         //   return function(){
         //     google.maps.event.trigger(marker, "click");
@@ -303,21 +284,17 @@ var viewModel = {
 
 // Filtering photos and markers by selecting an option in the sidebar dropdown
 viewModel.filteredPhotos = ko.computed(function() {
-  console.log('Filtering Starts');
   if(!viewModel.filter()){
-    console.log('No filter selected');
     return viewModel.photos();
   }
   var filter = viewModel.filter();
   if (!filter || filter == "None") {
     // When set filter "None" again display all markers on map
-    console.log("NONE filter");
     viewModel.photos().forEach(function(i) {
       i.marker().setMap(map);
     });
     return viewModel.photos();
   } else {
-    console.log("Some filter", filter);
     return ko.utils.arrayFilter(viewModel.photos(), function(i) {
         // If filter option applies to a photo, remove the photo's marker
         // as well as from the view list.
@@ -331,15 +308,33 @@ viewModel.filteredPhotos = ko.computed(function() {
     });
   }
 
-  function  bindClickEventOnPhoto(targetDOMId, targetMarker) {
-    console.log(targetDOMId);
-    document.getElementById(targetDOMId).addEventListener("click", (function(marker) {
+  // Add event lsitener to open info window on clicking a photo from list
+  // ISSUE: This eventLister is removed after filtered photo list :(
+
+  // function  bindClickEventOnPhoto(targetDOMId, targetMarker) {
+  //   console.log(targetDOMId);
+  //   document.getElementById(targetDOMId).addEventListener("click", (function(marker) {
+  //     return function(){
+  //       google.maps.event.trigger(marker, "click");
+  //     };
+  //   })(targetMarker));
+  // }
+});
+
+// afterRender callback function
+ko.bindingHandlers.filteredPhotos = {
+  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    console.log('init', this);
+  },
+  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    console.log('update', this);
+    document.getElementById(newPhoto.photoId()).addEventListener("click", (function(marker) {
       return function(){
         google.maps.event.trigger(marker, "click");
       };
-    })(targetMarker));
+    })(newPhoto.marker()));
   }
-});
+};
 
 
 // Initial Setting of Google Map
@@ -367,9 +362,8 @@ ko.applyBindings(viewModel);
 // Start
 google.maps.event.addDomListener(window, "load", initialize);
 
-////////////////////////////////////////
+
 // Actions triggered by user's action //
-////////////////////////////////////////
 
 // Button show/hide animation for search bar
 $("#toggle-search").click(function(){

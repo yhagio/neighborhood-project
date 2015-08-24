@@ -43,8 +43,7 @@ browserify src/js/main.js -o src/js/bundle.js
 - [Icon - Ionicons](http://ionicons.com/)
 Need to handle error manually since the dataType is jsonp, jquery won't fire the error function automatically
 - [jQuery ajax request using jsonp error](http://stackoverflow.com/questions/5247295/jquery-ajax-request-using-jsonp-error)
-
 - [Custom Binding (for google map marker)](http://knockoutjs.com/documentation/custom-bindings.html)
 - [Knockout + Googel Map Binding](https://hoonzis.github.io/knockoutjs-and-google-maps-binding/)
-
 - [Remove marker from map](http://stackoverflow.com/questions/29557938/removing-map-pin-with-search)
+- [Creating custom bindings that control descendant bindings](http://knockoutjs.com/documentation/custom-bindings-controlling-descendant-bindings.html)

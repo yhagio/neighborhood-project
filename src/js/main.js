@@ -86,7 +86,9 @@ var Model = function(photoId, captionText, data) {
     };
   })(self.marker()));
 
-  // TRY: Add event lsitener to open info window on clicking a photo from list
+  // Add event lsitener to open info window on clicking a photo from list
+  // ISSUE: This eventLister is removed after filtered photo list :(
+
   // document.getElementById(photoId).addEventListener("click", (function(marker) {
   //   return function(){
   //     google.maps.event.trigger(marker, "click");
@@ -158,32 +160,11 @@ var viewModel = {
 
         // Add new photo to observable array
         newPhoto = new Model(photoId, captionText, res.data[i]);
-        // newPhoto = new Model(photoId, res.data[i].images.thumbnail.url, captionText, res.data[i].location.latitude, res.data[i].location.longitude, res.data[i].tags);
         viewModel.photos.push(newPhoto);
-
-        // Add marker for photo
-        // marker = new google.maps.Marker({
-        //   position: new google.maps.LatLng(res.data[i].location.latitude, res.data[i].location.longitude),
-        //   map: map,
-        //   icon: "../images/resized/camera.png"
-        // });
-
-        // Add event lsitener to open info window on clicking marker
-        // google.maps.event.addListener(marker, "click", (function(marker, i) {
-        //   var infowindowContent =
-        //     "<div class='infoWindow'>" +
-        //       "<img src='" + res.data[i].images.thumbnail.url + "'>" +
-        //       "<p>" + viewModel.hasTitle(res.data[i]) + "</p>" +
-        //       "<b>@" + res.data[i].user.username + "</p>" +
-        //     "</div>";
-        //   return function() {
-        //     infowindow.setContent(infowindowContent);
-        //     infowindow.open(map, marker);
-        //   };
-        // })(marker, i));
 
         // Add event lsitener to open info window on clicking a photo from list
         // ISSUE: This eventLister is removed after filtered photo list :(
+
         // document.getElementById(newPhoto.photoId()).addEventListener("click", (function(marker) {
         //   return function(){
         //     google.maps.event.trigger(marker, "click");
@@ -263,13 +244,16 @@ viewModel.filteredPhotos = ko.computed(function() {
         // as well as from the view list.
         if(i.tags.indexOf(filter) > -1) {
           i.marker().setMap(map);
-          // bindClickEventOnPhoto(i.photoId(), i.marker());
+          // *ISSUE: bindClickEventOnPhoto(i.photoId(), i.marker());
           return true;
         } else {
           i.marker().setMap(null);
         }
     });
   }
+
+  // Add event lsitener to open info window on clicking a photo from list
+  // *ISSUE: This eventLister is removed after filtered photo list :(
 
   // function  bindClickEventOnPhoto(targetDOMId, targetMarker) {
   //   console.log(targetDOMId);
@@ -280,6 +264,18 @@ viewModel.filteredPhotos = ko.computed(function() {
   //   })(targetMarker));
   // }
 });
+
+// afterRender callback function
+ko.bindingHandlers.filteredPhotos = {
+  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    // Never called ...
+    console.log('init bindingHandlers');
+  },
+  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    // Never called ...
+    console.log('update bindingHandlers');
+  }
+};
 
 
 // Initial Setting of Google Map
@@ -307,9 +303,8 @@ ko.applyBindings(viewModel);
 // Start
 google.maps.event.addDomListener(window, "load", initialize);
 
-////////////////////////////////////////
+
 // Actions triggered by user's action //
-////////////////////////////////////////
 
 // Button show/hide animation for search bar
 $("#toggle-search").click(function(){
