@@ -12,11 +12,19 @@ Insagarm photo finder with Google Map. User can simply type city or location nam
 
 #### Build tool
 - [Gulp](https://github.com/gulpjs/gulp/blob/master/docs/README.md)
+- [Browserify]()
 
 Simply compress CSS, JS, and HTML files.
 ```
 npm install --save-dev gulp gulp-minify-css gulp-uglify gulp-minify-html
 ```
+
+To run browserify (i.e. for development) after globally install it
+```
+npm install -g browserify
+browserify src/js/main.js -o src/js/bundle.js
+```
+
 #### Javascript Libraries
 - [Google Maps JavaScript API](https://developers.google.com/maps/documentation/javascript/)
 - [Knockout.js](http://knockoutjs.com/)

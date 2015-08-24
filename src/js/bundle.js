@@ -1,3 +1,55 @@
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+module.exports = {
+  // Populate select option list for filtering photos
+  populateFilterOptions: function(arr, selectFilter) {
+    var optionTag;
+    for(var i = 0, len = arr.length; len > i; i++){
+      optionTag = document.createElement("option");
+      optionTag.setAttribute("value", arr[i]);
+      optionTag.innerHTML = arr[i];
+      selectFilter.appendChild(optionTag)
+    }
+  },
+
+  // Remove children elements
+  clear: function(DOM) {
+    while(DOM.firstChild){
+      DOM.removeChild(DOM.firstChild);
+    }
+  },
+
+  // Display error message
+  displayError: function(errorMsg) {
+    var pTag = document.createElement("p");
+    pTag.setAttribute("class", "errorMessage");
+    pTag.innerHTML = errorMsg;
+    error.appendChild(pTag);
+  },
+
+  // Show/hide animation for search bar and search button text
+  toggleSearchBar: function(){
+    $(".inputBox").toggle(300);
+    if ($("#toggle-search").text() === "Search") {
+      $("#toggle-search").text("Search Hide");
+      $("#location-input").focus();
+    } else {
+      $("#toggle-search").text("Search");
+    }
+  },
+
+  // Close Sidebar and Search input on selecting a photo or closing side bar
+  // If search bar is open, it closes at same time user selects a photo from sidebar
+  closeSearchBarOnSelectPhoto: function() {
+    window.location.href = window.location.pathname + "#";
+    $(".inputBox").hide(300);
+    if($("#toggle-search").text() === "Search Hide") {
+      $("#toggle-search").text("Search");
+    }
+  }
+
+};
+
+},{}],2:[function(require,module,exports){
 "use strict";
 
 var helpers = require('./helpers');
@@ -70,10 +122,11 @@ var viewModel = {
   summary: ko.observable(""),
   iconURL: ko.observable(""),
 
+
   // Array of instagram data
   photos: ko.observableArray([]),
 
-  // Filter keyword
+  // Filtered
   filter: ko.observable(""),
 
   fetchPhotos: function(latInsta, lngInsta) {
@@ -204,7 +257,6 @@ var viewModel = {
   }
 };
 
-// Filtering photos by selecting an option in the sidebar dropdown
 viewModel.filteredPhotos = ko.computed(function() {
   if(!viewModel.filter()){
     return viewModel.photos();
@@ -262,3 +314,5 @@ $("#select-filter-tag").change(function(){
   var keyTag = $(this).val();
   viewModel.filter(keyTag);
 });
+
+},{"./helpers":1}]},{},[2]);
