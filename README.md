@@ -10,18 +10,16 @@ Insagarm photo finder with Google Map. User can simply type city or location nam
 - `cd dist && http-server`
 
 ### Features
-- User can see latest 20 Instagram photos of chosen city
+- User can see latest up to 20 Instagram photos of chosen city
 - Weather information of the location user enters
 - Location markers on Google Map that contain more details of the photo
-- For wide screen (Larger than 540px), user can see the list of the photos on the right side of the screen
-
-### Todo
-- Fix binding eventHandler to each photo after filtered
-- Filter markers as well as photo list
+- Work on small to large screen
+- Photos and markers can be filtered by tags
+- Sidebar that contains weather information, search button, filter options
 
 #### Build tool
 - [Gulp](https://github.com/gulpjs/gulp/blob/master/docs/README.md)
-- [Browserify]()
+- [Browserify](http://browserify.org/)
 
 Simply compress CSS, JS, and HTML files.
 ```
@@ -45,13 +43,10 @@ browserify src/js/main.js -o src/js/bundle.js
 - [Open Weather Map - API/Weather Condition Codes](http://openweathermap.org/wiki/API/Weather_Condition_Codes)
 
 #### Resources
+- [CSS Color - Flat](https://flatuicolors.com/)
 - [Icon - Ionicons](http://ionicons.com/)
 Need to handle error manually since the dataType is jsonp, jquery won't fire the error function automatically
 - [jQuery ajax request using jsonp error](http://stackoverflow.com/questions/5247295/jquery-ajax-request-using-jsonp-error)
-- [Custom Binding (for google map marker)](http://knockoutjs.com/documentation/custom-bindings.html)
-- [Knockout + Googel Map Binding](https://hoonzis.github.io/knockoutjs-and-google-maps-binding/)
-- [Remove marker from map](http://stackoverflow.com/questions/29557938/removing-map-pin-with-search)
-- [Creating custom bindings that control descendant bindings](http://knockoutjs.com/documentation/custom-bindings-controlling-descendant-bindings.html)
-
-### Issues
-- [https://gist.github.com/yhagio/715ad687ee2518641eba](https://gist.github.com/yhagio/715ad687ee2518641eba)
+- [Knockout filtering observableArray](http://stackoverflow.com/questions/13664499/how-to-filter-using-a-dropdown-in-knockout)
+- [Remove marker from map for filtering](http://stackoverflow.com/questions/29557938/removing-map-pin-with-search)
+- [Knockout Click binding](http://knockoutjs.com/documentation/click-binding.html)

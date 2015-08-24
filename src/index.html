@@ -35,7 +35,7 @@
 
         <!-- Search Button -->
         <div class="search-box">
-          <button type="button" class="toggleSearch" id="toggle-search">Search</button>
+          <button type="button" class="toggleSearch" id="toggle-search">Search City</button>
         </div>
 
         <!-- Weather -->
@@ -61,7 +61,7 @@
     <!-- Template for each photo item -->
     <script type="text/template" id="photo-item-tpl">
       <li class="photoItem" data-bind="attr:{id: photoId}">
-        <img data-bind="attr:{src: imgURL}" data-bind="attr:{alt: photoId}"/>
+        <img data-bind="click: $parent.openInfoWindow, attr:{src: imgURL, alt: photoId}"/>
       </li>
     </script>
 

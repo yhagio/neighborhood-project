@@ -1,11 +1,13 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports = {
 
-  // Populate select option list for filtering photos
+  // Populate filter option list for the loaded photos
   populateFilterOptions: function(arr, targetSelectDOM) {
     // Default option
-    $("#select-filter-tag").append("<option value='None' selected='selected'>None</option>");
+    $("#select-filter-tag").append("<option value='None' selected='selected'>No Tag Filter</option>");
 
+    // Rest of options which are generated dynamically
+    // everytime user changes the city location
     var optionTag;
     for(var i = 0, len = arr.length; len > i; i++){
       optionTag = document.createElement("option");
@@ -15,7 +17,7 @@ module.exports = {
     }
   },
 
-  // Remove children elements
+  // Remove all children elements
   clear: function(DOM) {
     while(DOM.firstChild){
       DOM.removeChild(DOM.firstChild);
@@ -33,11 +35,11 @@ module.exports = {
   // Show/hide animation for search bar and search button text
   toggleSearchBar: function(){
     $(".inputBox").toggle(300);
-    if ($("#toggle-search").text() === "Search") {
+    if ($("#toggle-search").text() === "Search City") {
       $("#toggle-search").text("Search Hide");
       $("#location-input").focus();
     } else {
-      $("#toggle-search").text("Search");
+      $("#toggle-search").text("Search City");
     }
   },
 
@@ -47,8 +49,18 @@ module.exports = {
     window.location.href = window.location.pathname + "#";
     $(".inputBox").hide(300);
     if($("#toggle-search").text() === "Search Hide") {
-      $("#toggle-search").text("Search");
+      $("#toggle-search").text("Search City");
     }
+  },
+
+  // When clicking a photo from the view list triggers
+  // corresponding infowindow to show on map
+  bindClickEventOnPhoto: function(targetDOMId, targetMarker) {
+    document.getElementById(targetDOMId).addEventListener("click", (function(marker) {
+      return function(){
+        google.maps.event.trigger(marker, "click");
+      };
+    })(targetMarker));
   }
 
 };
@@ -79,8 +91,11 @@ var selectFilter = document.getElementById("select-filter-tag");
 // Google Map Setting
 var searchInput = new google.maps.places.SearchBox(document.getElementById("location-input"));
 
+// Everytime location of map changes, following codes fire
 google.maps.event.addListener(searchInput, "places_changed", function() {
+  // Clear any error message
   helpers.clear(error);
+  // Trigger toggle search button to set the "Search"
   $("#toggle-search").trigger("click");
   searchLocation = searchInput.getPlaces();
 
@@ -141,15 +156,6 @@ var Model = function(photoId, captionText, data) {
       infowindow.open(map, marker);
     };
   })(self.marker()));
-
-  // Add event lsitener to open info window on clicking a photo from list
-  // ISSUE: This eventLister is removed after filtered photo list :(
-
-  // document.getElementById(photoId).addEventListener("click", (function(marker) {
-  //   return function(){
-  //     google.maps.event.trigger(marker, "click");
-  //   };
-  // })(self.marker()));
 };
 
 // ViewModel
@@ -167,6 +173,11 @@ var viewModel = {
 
   // Filter keyword
   filter: ko.observable(""),
+
+  openInfoWindow: function(data){
+    // When clicking a photo from the view list triggers corresponding infowindow to show on map
+    helpers.bindClickEventOnPhoto(data.photoId(), data.marker());
+  },
 
   fetchPhotos: function(instagramLatitude, instagramLongitude) {
     instagramURL = "https://api.instagram.com/v1/media/search?lat="+instagramLatitude+"&lng="+instagramLongitude+"&access_token=322608956.c39a870.654d8fb14b8d48838cc430bebcb0dede";
@@ -217,15 +228,6 @@ var viewModel = {
         // Add new photo to observable array
         newPhoto = new Model(photoId, captionText, res.data[i]);
         viewModel.photos.push(newPhoto);
-
-        // Add event lsitener to open info window on clicking a photo from list
-        // ISSUE: This eventLister is removed after filtered photo list :(
-
-        // document.getElementById(newPhoto.photoId()).addEventListener("click", (function(marker) {
-        //   return function(){
-        //     google.maps.event.trigger(marker, "click");
-        //   };
-        // })(newPhoto.marker()));
       }
 
       // Remove duplicated tags and save the uniq tags in array "uniqTags"
@@ -233,6 +235,7 @@ var viewModel = {
       $.each(allTags, function(i, el){
         if($.inArray(el, uniqTags) === -1) uniqTags.push(el);
       });
+
       // viewModel.uniqTags.push(uniqTags);
       helpers.populateFilterOptions(uniqTags, selectFilter);
 
@@ -300,39 +303,13 @@ viewModel.filteredPhotos = ko.computed(function() {
         // as well as from the view list.
         if(i.tags.indexOf(filter) > -1) {
           i.marker().setMap(map);
-          // *ISSUE: bindClickEventOnPhoto(i.photoId(), i.marker());
           return true;
         } else {
           i.marker().setMap(null);
         }
     });
   }
-
-  // Add event lsitener to open info window on clicking a photo from list
-  // *ISSUE: This eventLister is removed after filtered photo list :(
-
-  // function  bindClickEventOnPhoto(targetDOMId, targetMarker) {
-  //   console.log(targetDOMId);
-  //   document.getElementById(targetDOMId).addEventListener("click", (function(marker) {
-  //     return function(){
-  //       google.maps.event.trigger(marker, "click");
-  //     };
-  //   })(targetMarker));
-  // }
 });
-
-// afterRender callback function
-ko.bindingHandlers.filteredPhotos = {
-  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    // Never called ...
-    console.log('init bindingHandlers');
-  },
-  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    // Never called ...
-    console.log('update bindingHandlers');
-  }
-};
-
 
 // Initial Setting of Google Map
 function initialize() {
@@ -360,11 +337,13 @@ ko.applyBindings(viewModel);
 google.maps.event.addDomListener(window, "load", initialize);
 
 
+////////////////////////////////////////
 // Actions triggered by user's action //
 
 // Button show/hide animation for search bar
 $("#toggle-search").click(function(){
   helpers.toggleSearchBar();
+  $('#main').css("background-color", "rgba(100, 100, 100, 0.5)");
 });
 
 // Close Sidebar and Search input on selecting a photo or closing side bar
