@@ -257,11 +257,11 @@ viewModel.filteredPhotos = ko.computed(function() {
 
   // function  bindClickEventOnPhoto(targetDOMId, targetMarker) {
   //   console.log(targetDOMId);
-  //   document.getElementById(targetDOMId).addEventListener("click", (function(marker) {
-  //     return function(){
-  //       google.maps.event.trigger(marker, "click");
-  //     };
-  //   })(targetMarker));
+    // document.getElementById(targetDOMId).addEventListener("click", (function(marker) {
+    //   return function(){
+    //     google.maps.event.trigger(marker, "click");
+    //   };
+    // })(targetMarker));
   // }
 });
 
