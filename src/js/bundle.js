@@ -300,7 +300,7 @@ viewModel.filteredPhotos = ko.computed(function() {
         // as well as from the view list.
         if(i.tags.indexOf(filter) > -1) {
           i.marker().setMap(map);
-          // bindClickEventOnPhoto(i.photoId(), i.marker());
+          // *ISSUE: bindClickEventOnPhoto(i.photoId(), i.marker());
           return true;
         } else {
           i.marker().setMap(null);
@@ -309,7 +309,7 @@ viewModel.filteredPhotos = ko.computed(function() {
   }
 
   // Add event lsitener to open info window on clicking a photo from list
-  // ISSUE: This eventLister is removed after filtered photo list :(
+  // *ISSUE: This eventLister is removed after filtered photo list :(
 
   // function  bindClickEventOnPhoto(targetDOMId, targetMarker) {
   //   console.log(targetDOMId);
@@ -324,15 +324,12 @@ viewModel.filteredPhotos = ko.computed(function() {
 // afterRender callback function
 ko.bindingHandlers.filteredPhotos = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    console.log('init', this);
+    // Never called ...
+    console.log('init bindingHandlers');
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    console.log('update', this);
-    document.getElementById(newPhoto.photoId()).addEventListener("click", (function(marker) {
-      return function(){
-        google.maps.event.trigger(marker, "click");
-      };
-    })(newPhoto.marker()));
+    // Never called ...
+    console.log('update bindingHandlers');
   }
 };
 

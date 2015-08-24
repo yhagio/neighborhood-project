@@ -13,7 +13,7 @@ gulp.task('minicss', function() {
 
 // Minify JavaScript
 gulp.task('minijs', function() {
-  gulp.src('./src/js/*.js')
+  gulp.src('./src/js/bundle.js')
     .pipe(uglify())
     .pipe(gulp.dest('./dist/js'));
 });
@@ -27,7 +27,7 @@ gulp.task('minihtml', function() {
 
 
 // Resize Image
-gulp.task('resizeImage2', function () {
+gulp.task('resizeImage1', function () {
   gulp.src('./src/images/camera.png')
     .pipe(imageResize({
       width : 30,
@@ -35,7 +35,7 @@ gulp.task('resizeImage2', function () {
       crop : true,
       upscale : false
     }))
-    .pipe(gulp.dest('./src/images/resized'));
+    .pipe(gulp.dest('./dist/images/resized'));
 });
 
 gulp.task('resizeImage2', function () {
@@ -46,12 +46,12 @@ gulp.task('resizeImage2', function () {
       crop : true,
       upscale : false
     }))
-    .pipe(gulp.dest('./src/images/resized'));
+    .pipe(gulp.dest('./dist/images/resized'));
 });
 
 
 // Default
-gulp.task('default', ['minicss', 'minijs', 'minihtml'], function() {
+gulp.task('default', ['minicss', 'minijs', 'minihtml', 'resizeImage1', 'resizeImage2'], function() {
   // watch for HTML changes
   gulp.watch('./src/index.html', function() {
     gulp.run('minihtml');
