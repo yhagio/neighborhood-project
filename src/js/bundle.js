@@ -95,8 +95,9 @@ var searchInput = new google.maps.places.SearchBox(document.getElementById("loca
 google.maps.event.addListener(searchInput, "places_changed", function() {
   // Clear any error message
   helpers.clear(error);
-  // Trigger toggle search button to set the "Search"
+  // Trigger toggle search button text "Search City" / "Search Hide"
   $("#toggle-search").trigger("click");
+
   searchLocation = searchInput.getPlaces();
 
   // Error handling on invalid location (Empty, Too long, etc)
@@ -106,12 +107,14 @@ google.maps.event.addListener(searchInput, "places_changed", function() {
     instagramLatitude = searchLocation[0].geometry.location.G;
     instagramLongitude = searchLocation[0].geometry.location.K;
 
-    // Set marker of the city
+    // Set map location to the searched city area
     map = new google.maps.Map(mapCanvas, {
       zoom: 15,
       center: new google.maps.LatLng(instagramLatitude, instagramLongitude),
       mapTypeId: google.maps.MapTypeId.ROADMAP
     });
+
+    // Assign new infowindow
     infowindow = new google.maps.InfoWindow();
 
     // Get and display data on Google Map
@@ -122,9 +125,8 @@ google.maps.event.addListener(searchInput, "places_changed", function() {
   $("#location-input").val("");
 });
 
-// Model
+// Photo Model for Instagram data
 var Model = function(photoId, captionText, data) {
-// var Model = function(photoId, imgURL, caption, lat, lon, tags) {
 
   var self = this;
 
@@ -136,14 +138,14 @@ var Model = function(photoId, captionText, data) {
   self.tags = ko.observableArray(data.tags);
   self.username = ko.observable(data.user.username);
 
-  // Create marker on google map
+  // Assing marker for each data from Instagram on google map
   self.marker = ko.observable(new google.maps.Marker({
     position: new google.maps.LatLng(self.lat(), self.lon()),
     map: map,
     icon: "../images/resized/camera.png"
   }));
 
-  // Add event lsitener to open info window on clicking marker
+  // Add event lsitener to each for infowindow
   google.maps.event.addListener(self.marker(), "click", (function(marker) {
     var infowindowContent =
       "<div class='infoWindow'>" +
@@ -168,17 +170,19 @@ var viewModel = {
   summary: ko.observable(""),
   iconURL: ko.observable(""),
 
-  // Array of instagram data
+  // Observable array of instagram data
   photos: ko.observableArray([]),
 
-  // Filter keyword
+  // Filter option observable
   filter: ko.observable(""),
 
+  // When clicking a photo from the view list from sidebar
+  // triggers corresponding infowindow opens on map
   openInfoWindow: function(data){
-    // When clicking a photo from the view list triggers corresponding infowindow to show on map
     helpers.bindClickEventOnPhoto(data.photoId(), data.marker());
   },
 
+  // Make ajax request to server and get Instagram data based on location
   fetchPhotos: function(instagramLatitude, instagramLongitude) {
     instagramURL = "https://api.instagram.com/v1/media/search?lat="+instagramLatitude+"&lng="+instagramLongitude+"&access_token=322608956.c39a870.654d8fb14b8d48838cc430bebcb0dede";
 
@@ -200,16 +204,20 @@ var viewModel = {
 
     // Array for saving all tags in each photo
     var allTags = [];
+
     // Error Handling
     if(!res.data){
       helpers.displayError("No photos found...");
     } else {
+
+      // Clear previously loaded photos to prepare for new coming photos
       viewModel.photos.removeAll();
 
       var newPhoto;
       var captionText;
       var photoId;
       var tagsLen;
+
       for(var i = 0, len = res.data.length; i < len; i++){
         // Set photoId
         photoId = "photo-" + i;
@@ -245,6 +253,7 @@ var viewModel = {
   },
 
   // Check if photo has a title
+  // if not, set to "No Title" to prevent error
   hasTitle: function(data) {
     if((data.caption)&&(data.caption.text)){
       return data.caption.text;
@@ -253,7 +262,7 @@ var viewModel = {
     }
   },
 
-  // Get weather data for the city entered
+  // Make ajax request to server to get weather data for the city entered
   fetchWeatherInfo: function(instagramLatitude, instagramLongitude) {
     var wURL = "http://api.openweathermap.org/data/2.5/weather?lat="+instagramLatitude+"&lon="+instagramLongitude+"&units=metric";
 
@@ -267,9 +276,13 @@ var viewModel = {
 
   // Display weather information
   renderWeather: function(res) {
+    // Error handling
     if(!res.main){
       helpers.displayError("No weather found for this city...");
+
     } else {
+
+      // Set the received data to each observable to display
       var cityName = res.name;
       var humidity = res.main.humidity + "%";
       var temp = res.main.temp + "℃";
@@ -287,20 +300,28 @@ var viewModel = {
 
 // Filtering photos and markers by selecting an option in the sidebar dropdown
 viewModel.filteredPhotos = ko.computed(function() {
+
   if(!viewModel.filter()){
     return viewModel.photos();
   }
+
+  // Get selected filter option from dropdown
   var filter = viewModel.filter();
+
   if (!filter || filter == "None") {
+
     // When set filter "None" again display all markers on map
     viewModel.photos().forEach(function(i) {
       i.marker().setMap(map);
     });
+
     return viewModel.photos();
+
   } else {
+
+    // If filter option applies to a photo, remove the photo's marker
+    // as well as from the view list.
     return ko.utils.arrayFilter(viewModel.photos(), function(i) {
-        // If filter option applies to a photo, remove the photo's marker
-        // as well as from the view list.
         if(i.tags.indexOf(filter) > -1) {
           i.marker().setMap(map);
           return true;
@@ -308,11 +329,13 @@ viewModel.filteredPhotos = ko.computed(function() {
           i.marker().setMap(null);
         }
     });
+
   }
 });
 
 // Initial Setting of Google Map
 function initialize() {
+
   // Default Location of "Montreal, Canada"
   myLatlng = new google.maps.LatLng(45.5015217,-73.5732091);
 
@@ -336,9 +359,6 @@ ko.applyBindings(viewModel);
 // Start
 google.maps.event.addDomListener(window, "load", initialize);
 
-
-////////////////////////////////////////
-// Actions triggered by user's action //
 
 // Button show/hide animation for search bar
 $("#toggle-search").click(function(){
