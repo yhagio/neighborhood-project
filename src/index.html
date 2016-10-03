@@ -66,9 +66,25 @@
     </script>
 
     <!-- Javascript files -->
-    <script src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAsasuFNJNRJbUZL7zda6ZW78PPhkZqGj8&libraries=places&callback=initMap">
+    </script>
+
+    <script>
+      function initMap() {
+        var mtl = {lat: 45.5015217, lng: -73.5732091};
+        var map = new google.maps.Map(document.getElementById('map-canvas'), {
+          zoom: 15,
+          center: mtl
+        });
+        var marker = new google.maps.Marker({
+          position: mtl,
+          map: map
+        });
+      }
+    </script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
-    <script src="js/bundle.js"></script>
+    <script async defer src="js/bundle.js"></script>
   </body>
 </html>

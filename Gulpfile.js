@@ -18,6 +18,12 @@ gulp.task('minijs', function() {
     .pipe(gulp.dest('./dist/js'));
 });
 
+gulp.task('devjs', function() {
+  gulp.src('./src/js/**.js')
+    .pipe(uglify())
+    .pipe(gulp.dest('./src/js/'));
+});
+
 // Minify HTML
 gulp.task('minihtml', function() {
   gulp.src('./src/index.html')
