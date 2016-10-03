@@ -4,10 +4,12 @@ Insagarm photo finder with Google Map. User can simply type city or location nam
 
 ## [DEMO](http://yhagio.github.io/neighborhood-project/dist)
 
+![Screenshot](/screenshot.png)
+
 ### How to run locally
 - Clone this repo `git clone git@github.com:yhagio/neighborhood-project.git`
 - `npm install -g http-server`
-- `cd dist && http-server`
+- `http-server dist`
 
 ### Features
 - User can see latest up to 20 Instagram photos of chosen city

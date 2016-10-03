@@ -116,7 +116,8 @@ var viewModel = {
 
   // Make ajax request to server and get Instagram data based on location
   fetchPhotos: function(instagramLatitude, instagramLongitude) {
-    instagramURL = "https://api.instagram.com/v1/media/search?lat="+instagramLatitude+"&lng="+instagramLongitude+"&access_token=322608956.c39a870.654d8fb14b8d48838cc430bebcb0dede";
+    instagramURL = "https://api.instagram.com/v1/media/search?lat="+instagramLatitude+"&lng="+instagramLongitude+"&access_token=322608956.c39a870.654d8fb14b8d48838cc430bebcb0dede&scope=public_content";
+    console.log(instagramURL);
 
     $.ajax({
       type: "GET",
@@ -196,7 +197,7 @@ var viewModel = {
 
   // Make ajax request to server to get weather data for the city entered
   fetchWeatherInfo: function(instagramLatitude, instagramLongitude) {
-    var wURL = "http://api.openweathermap.org/data/2.5/weather?lat="+instagramLatitude+"&lon="+instagramLongitude+"&units=metric";
+    var wURL = "http://api.openweathermap.org/data/2.5/weather?lat="+instagramLatitude+"&lon="+instagramLongitude+"&units=metric&APPID=0fe4e2b61b814cc0158ee3c6ab1a14c9";
 
     $.ajax({
       type: "GET",
@@ -266,7 +267,7 @@ viewModel.filteredPhotos = ko.computed(function() {
 });
 
 // Initial Setting of Google Map
-function initialize() {
+function initMap() {
 
   // Default Location of "Montreal, Canada"
   myLatlng = new google.maps.LatLng(45.5015217,-73.5732091);
@@ -289,7 +290,7 @@ function initialize() {
 ko.applyBindings(viewModel);
 
 // Start
-google.maps.event.addDomListener(window, "load", initialize);
+google.maps.event.addDomListener(window, "load", initMap);
 
 
 // Button show/hide animation for search bar
